@@ -1,14 +1,40 @@
 "use client";
 
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ContactPage() {
-  const handleMessage = (e: React.FormEvent) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Message sent successfully! We will get back to you shortly.");
+    setIsSubmitting(true);
+
+    const { error } = await supabase
+      .from('messages')
+      .insert([
+        { name, email, message }
+      ]);
+
+    setIsSubmitting(false);
+
+    if (error) {
+      alert("There was an error sending your message. Please try again.");
+      console.error(error);
+    } else {
+      setSuccess(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+    }
   };
 
   return (
@@ -49,38 +75,50 @@ export default function ContactPage() {
         </Card>
       </div>
 
-      {/* NEW: Direct Message Form */}
+      {/* Direct Message Form */}
       <Card className="border-none shadow-2xl bg-white rounded-3xl overflow-hidden max-w-3xl mx-auto">
         <div className="bg-accent h-2 w-full"></div>
         <CardContent className="p-8 md:p-12">
-          <h2 className="font-serif text-3xl mb-2 text-primary text-center">Send a Direct Message</h2>
-          <p className="text-center text-sm text-foreground/60 mb-8">Have a custom request or feedback? We'd love to hear from you.</p>
-          
-          <form onSubmit={handleMessage} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-accent font-semibold text-xs uppercase tracking-wider">Your Name</Label>
-                <Input id="name" placeholder="Enter your name" required className="bg-background border-transparent focus-visible:ring-primary h-12 rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-accent font-semibold text-xs uppercase tracking-wider">Your Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" required className="bg-background border-transparent focus-visible:ring-primary h-12 rounded-xl" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="message" className="text-accent font-semibold text-xs uppercase tracking-wider">Message</Label>
-              <textarea 
-                id="message" 
-                rows={4} 
-                required 
-                placeholder="How can we help you?"
-                className="flex w-full rounded-xl border border-transparent bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none"
-              ></textarea>
-            </div>
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-lg h-14 rounded-full shadow-lg shadow-primary/30 transition-transform active:scale-95">
-              Send Message
-            </Button>
-          </form>
+          {success ? (
+             <div className="text-center py-8">
+               <h3 className="font-serif text-3xl text-primary mb-4">Message Sent!</h3>
+               <p className="text-foreground/70">Thank you for reaching out. We will get back to you within 24 hours.</p>
+               <Button onClick={() => setSuccess(false)} variant="outline" className="mt-6 rounded-full">Send Another Message</Button>
+             </div>
+          ) : (
+            <>
+              <h2 className="font-serif text-3xl mb-2 text-primary text-center">Send a Direct Message</h2>
+              <p className="text-center text-sm text-foreground/60 mb-8">Have a custom request or feedback? We'd love to hear from you.</p>
+              
+              <form onSubmit={handleMessage} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-accent font-semibold text-xs uppercase tracking-wider">Your Name</Label>
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" required className="bg-background border-transparent focus-visible:ring-primary h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-accent font-semibold text-xs uppercase tracking-wider">Your Email</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" required className="bg-background border-transparent focus-visible:ring-primary h-12 rounded-xl" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-accent font-semibold text-xs uppercase tracking-wider">Message</Label>
+                  <textarea 
+                    id="message" 
+                    rows={4} 
+                    required 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="How can we help you?"
+                    className="flex w-full rounded-xl border border-transparent bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none"
+                  ></textarea>
+                </div>
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-lg h-14 rounded-full shadow-lg shadow-primary/30 transition-transform active:scale-95 disabled:opacity-50">
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                </Button>
+              </form>
+            </>
+          )}
         </CardContent>
       </Card>
     </main>
