@@ -33,7 +33,7 @@ export default function Home() {
           <div className="absolute inset-0 z-10 bg-black/50" />
           <div className="relative z-20 mt-4 flex flex-col items-center">
             <div className="w-24 h-24 mb-6 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-center text-white/70 text-xs font-serif shadow-xl">Logo</div>
-            <h1 className="font-serif text-5xl md:text-7xl text-white mb-4 tracking-tight drop-shadow-md">hennabykawthar</h1>
+            <h1 className="font-serif text-[10vw] min-[400px]:text-5xl md:text-7xl lg:text-8xl text-primary font-bold tracking-tighter leading-none mb-6">hennabykawthar.</h1>
             <p className="text-white/90 font-medium text-sm uppercase tracking-widest drop-shadow-sm mb-8">Lead Henna Artist & Founder</p>
             <Link href="/reserve">
               <Button className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-6 text-lg shadow-xl shadow-primary/20 transition-transform hover:scale-105">Book Your Session</Button>
